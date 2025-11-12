@@ -9,14 +9,14 @@ import os
 LLAMA_CPP_SERVER = {
     "engine": "llama-cpp",
     "model": "whatever-model", # 🔥🔥🔥 tu nie ma różnicy co wpiszesz, bo na tym URLu jest tylko 1 model
-    "base_url": "http://localhost:8080/v1",
+    "base_url": "http://localhost:8080/",
 }
 OLLAMA_SERVER = {
     "engine": "ollama",
     "model": "gemma3:27b", # 🔥🔥🔥 tu JEST różnica, bo ollama ma wiele modeli, a llama-cpp ma tylko 1 model
     "base_url": "http://localhost:11434/v1",
 }
-SERVER = OLLAMA_SERVER
+SERVER = LLAMA_CPP_SERVER
 
 # --- MLflow Configuration ---
 # Enable automatic logging for OpenAI calls
