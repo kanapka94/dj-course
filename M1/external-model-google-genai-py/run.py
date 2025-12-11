@@ -1,6 +1,7 @@
 from google import genai
 from google.genai import types
 import os 
+import tiktoken
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -32,6 +33,25 @@ conversation_history = [
     ),
 ]
 
+# Initialize tiktoken encoder
+encoding = tiktoken.get_encoding("cl100k_base")
+
+# Display tokens for each conversation
+for i, content in enumerate(conversation_history):
+    print(f"\n--- Conversation {i+1} ({content.role}) ---")
+    # Extract text from all parts
+    text_parts = []
+    for part in content.parts:
+        if hasattr(part, 'text') and part.text:
+            text_parts.append(part.text)
+    
+    if text_parts:
+        full_text = " ".join(text_parts)
+        tokens = encoding.encode(full_text)
+        print(f"Text: {full_text}")
+        print(f"Tokens: {tokens}")
+        print(f"Token count: {len(tokens)}")
+
 response = client.models.generate_content(
     model=model,
     contents=conversation_history,
@@ -41,4 +61,7 @@ response = client.models.generate_content(
     ),
 )
 
-print(response.text)
+tokens = encoding.encode(response.text)
+print("Response:", response.text)
+print("Response tokens:", tokens)
+print("Response token count:", len(tokens))
