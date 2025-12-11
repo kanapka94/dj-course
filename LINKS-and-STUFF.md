@@ -4,9 +4,14 @@
 - cursor: https://cursor.com/dashboard?tab=usage
 - copilot: https://github.com/settings/billing/usage
 - openAI: https://platform.openai.com/usage
-- google: https://aistudio.google.com/app/usage
+- google/gemini: https://aistudio.google.com/app/usage
 - openrouter: https://openrouter.ai/settings/keys
 - huggingface: https://huggingface.co/settings/tokens
+
+### Ustaw klucz
+
+- google/gemini: https://aistudio.google.com/app/api-keys
+  - download Gemini CLI: https://github.com/google-gemini/gemini-cli
 
 ## Ile ważą lokalne modele:
 
@@ -22,6 +27,9 @@ du -sh ~/Library/Caches/llama.cpp/
 
 du -sh ~/.ollama
  43G    /Users/<USER>/.ollama
+
+du -sh /Users/<USER>/Library/Application\ Support/tts
+ 1.7G    /Users/<USER>/Library/Application\ Support/tts
 ```
 
 sprawdź lokalny rozmiar wszystkiego wewnątrz `~`: `find ~ -maxdepth 1 -mindepth 1 -print0 | xargs -0 du -sh`
