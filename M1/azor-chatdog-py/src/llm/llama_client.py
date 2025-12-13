@@ -16,7 +16,8 @@ class LlamaChatSession:
     Manages conversation history and provides send_message() and get_history() methods.
     """
     
-    def __init__(self, llama_model: Llama, system_instruction: str, history: Optional[List[Dict]] = None):
+    def __init__(self, llama_model: Llama, system_instruction: str, history: Optional[List[Dict]] = None, 
+                 temperature: float = 0.7, top_p: float = 0.9, top_k: int = 40):
         """
         Initialize the LLaMA chat session.
         
@@ -24,10 +25,16 @@ class LlamaChatSession:
             llama_model: Initialized Llama model instance
             system_instruction: System prompt for the assistant
             history: Previous conversation history
+            temperature: Temperature for generation (0.0-2.0)
+            top_p: Top P (nucleus sampling) for generation (0.0-1.0)
+            top_k: Top K for generation (number of tokens)
         """
         self.llama_model = llama_model
         self.system_instruction = system_instruction
         self._history = history or []
+        self.temperature = temperature
+        self.top_p = top_p
+        self.top_k = top_k
         
     def send_message(self, text: str) -> Any:
         """
@@ -53,6 +60,9 @@ class LlamaChatSession:
                 max_tokens=512,
                 stop=["User:", "Assistant:", "\n\nUser:", "\n\nAssistant:"],
                 echo=False,
+                temperature=self.temperature,
+                top_p=self.top_p,
+                top_k=self.top_k,
             )
             
             response_text = output["choices"][0]["text"].strip()
@@ -127,7 +137,8 @@ class LlamaClient:
     Provides a clean interface compatible with GeminiLLMClient.
     """
     
-    def __init__(self, model_name: str, model_path: str, n_gpu_layers: int = 1, n_ctx: int = 2048):
+    def __init__(self, model_name: str, model_path: str, n_gpu_layers: int = 1, n_ctx: int = 2048,
+                 temperature: float = 0.7, top_p: float = 0.9, top_k: int = 40):
         """
         Initialize the LLaMA client with explicit parameters.
         
@@ -136,6 +147,9 @@ class LlamaClient:
             model_path: Path to the GGUF model file
             n_gpu_layers: Number of layers to run on GPU
             n_ctx: Maximum context length
+            temperature: Temperature for generation (0.0-2.0)
+            top_p: Top P (nucleus sampling) for generation (0.0-1.0)
+            top_k: Top K for generation (number of tokens)
             
         Raises:
             ValueError: If model_path is empty or file doesn't exist
@@ -150,6 +164,9 @@ class LlamaClient:
         self.model_path = model_path
         self.n_gpu_layers = n_gpu_layers
         self.n_ctx = n_ctx
+        self.temperature = temperature
+        self.top_p = top_p
+        self.top_k = top_k
         
         # Initialize the model during construction
         self._llama_model = self._initialize_model()
@@ -182,7 +199,10 @@ class LlamaClient:
             model_name=os.getenv('LLAMA_MODEL_NAME', 'llama-3.1-8b-instruct'),
             llama_model_path=os.getenv('LLAMA_MODEL_PATH'),
             llama_gpu_layers=int(os.getenv('LLAMA_GPU_LAYERS', '1')),
-            llama_context_size=int(os.getenv('LLAMA_CONTEXT_SIZE', '2048'))
+            llama_context_size=int(os.getenv('LLAMA_CONTEXT_SIZE', '2048')),
+            temperature=float(os.getenv('LLAMA_TEMPERATURE', '0.7')),
+            top_p=float(os.getenv('LLAMA_TOP_P', '0.9')),
+            top_k=int(os.getenv('LLAMA_TOP_K', '40'))
         )
         
         console.print_info(f"Ładowanie modelu LLaMA z: {config.llama_model_path}")
@@ -191,7 +211,10 @@ class LlamaClient:
             model_name=config.model_name,
             model_path=config.llama_model_path,
             n_gpu_layers=config.llama_gpu_layers,
-            n_ctx=config.llama_context_size
+            n_ctx=config.llama_context_size,
+            temperature=config.temperature,
+            top_p=config.top_p,
+            top_k=config.top_k
         )
     
     def _initialize_model(self) -> Llama:
@@ -240,7 +263,10 @@ class LlamaClient:
         return LlamaChatSession(
             llama_model=self._llama_model,
             system_instruction=system_instruction,
-            history=history or []
+            history=history or [],
+            temperature=self.temperature,
+            top_p=self.top_p,
+            top_k=self.top_k
         )
     
     def count_history_tokens(self, history: List[Dict]) -> int:
@@ -297,7 +323,7 @@ class LlamaClient:
         Returns:
             Formatted message string for display
         """
-        return f"✅ Klient llama.cpp gotowy do użycia (model lokalny: {self.model_name}, Warstwy GPU: {self.n_gpu_layers}, Kontekst: {self.n_ctx}"
+        return f"✅ Klient llama.cpp gotowy do użycia (model lokalny: {self.model_name}, Warstwy GPU: {self.n_gpu_layers}, Kontekst: {self.n_ctx}, Temperature: {self.temperature}, Top P: {self.top_p}, Top K: {self.top_k})"
     
     @property
     def client(self):
