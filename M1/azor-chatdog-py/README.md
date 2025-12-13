@@ -21,14 +21,18 @@ Utworzone na podst. prompta (oraz podlinkowanego wątku gemini) opisanego w [`IN
 Aplikacja obsługuje dwa typy modeli LLM:
 
 ### Google Gemini (domyślny)
+
 Utwórz plik `.env` z następującymi zmiennymi:
+
 ```bash
 GEMINI_API_KEY=your_gemini_api_key_here
 MODEL_NAME=gemini-2.5-flash # zgodny z dostępnymi modelami Gemini
 ```
 
 ### Local LLaMA (llama-cpp-python)
+
 Dla lokalnych modeli LLaMA ustaw:
+
 ```bash
 MODEL_NAME=llama-3.1-8b-instruct
 LLAMA_MODEL_PATH=/path/to/your/model.gguf
@@ -41,6 +45,7 @@ LLAMA_CONTEXT_SIZE=2048
 ### Przykład użycia z LLaMA
 
 1. Ustaw zmienne środowiskowe w `.env`:
+
 ```bash
 MODEL_NAME=llama-3.1-8b-instruct
 LLAMA_MODEL_PATH=/Users/tomaszku/Library/Caches/llama.cpp/bartowski_Meta-Llama-3.1-8B-Instruct-GGUF_Meta-Llama-3.1-8B-Instruct-Q8_0.gguf
@@ -49,6 +54,7 @@ LLAMA_CONTEXT_SIZE=2048
 ```
 
 2. Uruchom aplikację - automatycznie zostanie użyty LlamaClient:
+
 ```bash
 python src/run.py
 ```
@@ -60,7 +66,6 @@ python src/run.py
 - aktywacja venv: `source .venv/bin/activate`
 - run: `python src/run.py`
 - kontynuacja sesji: `python src/run.py --session-id=<ID>`
-
 
 ## Wspierane slash-commands:
 
@@ -79,6 +84,7 @@ python src/run.py
 ## Pliki Sesji
 
 Sesje są zapisywane w `~/.azor/`:
+
 - `<session-id>-log.json` - historia konwersacji
 - `azor-wal.json` - Write-Ahead Log (wszystkie transakcje)
 
@@ -89,7 +95,9 @@ Sesje są zapisywane w `~/.azor/`:
 Aplikacja wykorzystuje dwuklasowy system zarządzania sesjami:
 
 #### **`ChatSession`** (pojedyncza sesja czatu)
+
 Reprezentuje pojedynczą sesję czatu i zawiera:
+
 - **Unikalny identyfikator sesji** (`session_id`)
 - **Historia konwersacji** (wszystkie wiadomości)
 - **Sesja LLM** (wewnętrzny obiekt Google GenAI)
@@ -102,7 +110,9 @@ Reprezentuje pojedynczą sesję czatu i zawiera:
   - `is_empty()` - sprawdza czy sesja ma zawartość
 
 #### **`SessionManager`** (orkiestracja sesji)
+
 Zarządza cyklem życia sesji i aktualnie aktywną sesją:
+
 - Tworzy nowe sesje
 - Przełącza między sesjami
 - Automatycznie zapisuje sesje przy przełączaniu
@@ -116,14 +126,21 @@ Zarządza cyklem życia sesji i aktualnie aktywną sesją:
 Aplikacja obsługuje różne typy modeli LLM poprzez zunifikowany interfejs:
 
 #### **`GeminiLLMClient`** (Google Gemini API)
+
 - Obsługuje modele Gemini przez API Google
 - Wymaga klucza API (`GEMINI_API_KEY`)
 - Obsługuje funkcje Gemini: thinking budget, structured responses
 
 #### **`LlamaClient`** (lokalne modele LLaMA)
+
 - Obsługuje lokalne modele GGUF przez llama-cpp-python
 - Nie wymaga połączenia internetowego
 - Konfigurowalne parametry: warstwy GPU, rozmiar kontekstu
 - Kompatybilny interfejs z GeminiLLMClient
 
 **Automatyczny wybór:** `ChatSession` automatycznie wybiera odpowiedni klient na podstawie nazwy modelu w `Assistant` konfiguracji.
+
+#### **`ClaudeLLMClient`** (Claude API)
+
+- Obsługa modeli Claude przez API Anthropic
+- Wymaga klucza API (`CLAUDE_API_KEY`)
