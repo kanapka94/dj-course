@@ -1,2 +1,3 @@
 coqui-tts
 rich
+torchcodec
